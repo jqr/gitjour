@@ -15,8 +15,6 @@ module Gitjour
         case args.shift
           when "list"
             list(*args)
-          when "clone"
-            clone(*args)
           when "serve"
             serve(*args)
           when "remote"
@@ -38,28 +36,11 @@ module Gitjour
 
       def show_service(service)
         puts "=== #{service.name} on #{service.host}:#{service.port} ==="
-        puts "  gitjour clone #{service.name}"
+        puts "  git clone git://#{service.host}:#{service.port}/ #{service.name}"
         if service.description != '' && service.description !~ /^Unnamed repository/
           puts "  #{service.description}"
         end
         puts
-      end
-
-      def clone(repository_name, *rest)
-        dir = rest.shift || repository_name
-        if File.exists?(dir)
-          exit_with! "ERROR: Clone directory '#{dir}' already exists."
-        end
-
-        puts "Cloning '#{repository_name}' into directory '#{dir}'..."
-
-        unless service = locate_repo(repository_name)
-          exit_with! "ERROR: Unable to find project named '#{repository_name}'"
-        end
-
-        puts "Connecting to #{service.host}:#{service.port}"
-
-        system "git clone git://#{service.host}:#{service.port}/ #{dir}/"
       end
 
       def remote(repository_name, *rest)
@@ -103,9 +84,6 @@ module Gitjour
         puts
         puts "  list <timeout>"
         puts "      Lists available repositories."
-        puts
-        puts "  clone <project> [<directory>]"
-        puts "      Clone a gitjour served repository."
         puts
         puts "  serve <path_to_project> [<name_of_project>] [<port>] or"
         puts "        <path_to_projects>"
